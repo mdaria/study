@@ -164,4 +164,45 @@ def getNew(flat_page):
     return New
     
  
-    
+page = 1
+district = 'http://www.cian.ru/cat.php?deal_type=sale&district%5B0%5D=13&district%5B1%5D=14&district%5B2%5D=15&district%5B3%5D=16&district%5B4%5D=17&district%5B5%5D=18&district%5B6%5D=19&district%5B7%5D=20&district%5B8%5D=21&district%5B9%5D=22&engine_version=2&offer_type=flat&p={}&room1=1&room2=1&room3=1&room4=1&room5=1&room6=1'
+
+links = []
+for page in range(1, 30):
+    page_url =  district.format(page)
+
+    search_page = requests.get(page_url)
+    search_page = search_page.content
+    search_page = BeautifulSoup(search_page, 'lxml')
+
+    flat_urls = search_page.findAll('div', attrs = {'ng-class':"{'serp-item_removed': offer.remove.state, 'serp-item_popup-opened': isPopupOpen}"})
+    flat_urls = re.split('http://www.cian.ru/sale/flat/|/" ng-class="', str(flat_urls))
+
+    for link in flat_urls:
+        if link.isdigit():
+            links.append(link)
+            
+            
+flat_url = 'http://www.cian.ru/sale/flat/' + str(links[0]) + '/'
+flat_page = requests.get(flat_url)
+flat_page = flat_page.content
+flat_page = BeautifulSoup(flat_page, 'lxml')
+
+flatStats = {'District':0}
+def get_stats(flat_page):
+    flatStats['Totsq'] = getTotsq(flat_page)
+    flatStats['Livesq'] = getLivesq(flat_page)
+    flatStats['Kitsq'] = getKitsq(flat_page)
+    flatStats['Price'] = getPrice(flat_page)
+    flatStats['Rooms'] = getRoom(flat_page)
+    flatStats['Bal'] = getBal(flat_page)
+    flatStats['Floor'] = getFloor(flat_page)
+    flatStats['NFloors'] = getNfloors(flat_page)
+    flatStats['Metrdist'] = getMetrDist(flat_page)
+    flatStats['Walk'] = getWalk(flat_page)
+    flatStats['Brick'] = getBrick(flat_page)
+    flatStats['Tel'] = getTel(flat_page)
+    flatStats['New'] = getNew(flat_page)
+    flatStats['Dist'] = getDist(flat_page)
+    return flatStats
+

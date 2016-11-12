@@ -163,8 +163,25 @@ def getNew(flat_page):
         New = 'N'
     return New
     
+flatStats = {'District':0}
+def get_stats(flat_page):
+    flatStats['Totsq'] = getTotsq(flat_page)
+    flatStats['Livesq'] = getLivesq(flat_page)
+    flatStats['Kitsq'] = getKitsq(flat_page)
+    flatStats['Price'] = getPrice(flat_page)
+    flatStats['Rooms'] = getRoom(flat_page)
+    flatStats['Bal'] = getBal(flat_page)
+    flatStats['Floor'] = getFloor(flat_page)
+    flatStats['NFloors'] = getNfloors(flat_page)
+    flatStats['Metrdist'] = getMetrDist(flat_page)
+    flatStats['Walk'] = getWalk(flat_page)
+    flatStats['Brick'] = getBrick(flat_page)
+    flatStats['Tel'] = getTel(flat_page)
+    flatStats['New'] = getNew(flat_page)
+    flatStats['Dist'] = getDist(flat_page)
+    return flatStats
  
-page = 1
+
 district = 'http://www.cian.ru/cat.php?deal_type=sale&district%5B0%5D=13&district%5B1%5D=14&district%5B2%5D=15&district%5B3%5D=16&district%5B4%5D=17&district%5B5%5D=18&district%5B6%5D=19&district%5B7%5D=20&district%5B8%5D=21&district%5B9%5D=22&engine_version=2&offer_type=flat&p={}&room1=1&room2=1&room3=1&room4=1&room5=1&room6=1'
 
 links = []
@@ -183,26 +200,15 @@ for page in range(1, 30):
             links.append(link)
             
             
-flat_url = 'http://www.cian.ru/sale/flat/' + str(links[0]) + '/'
-flat_page = requests.get(flat_url)
-flat_page = flat_page.content
-flat_page = BeautifulSoup(flat_page, 'lxml')
 
-flatStats = {'District':0}
-def get_stats(flat_page):
-    flatStats['Totsq'] = getTotsq(flat_page)
-    flatStats['Livesq'] = getLivesq(flat_page)
-    flatStats['Kitsq'] = getKitsq(flat_page)
-    flatStats['Price'] = getPrice(flat_page)
-    flatStats['Rooms'] = getRoom(flat_page)
-    flatStats['Bal'] = getBal(flat_page)
-    flatStats['Floor'] = getFloor(flat_page)
-    flatStats['NFloors'] = getNfloors(flat_page)
-    flatStats['Metrdist'] = getMetrDist(flat_page)
-    flatStats['Walk'] = getWalk(flat_page)
-    flatStats['Brick'] = getBrick(flat_page)
-    flatStats['Tel'] = getTel(flat_page)
-    flatStats['New'] = getNew(flat_page)
-    flatStats['Dist'] = getDist(flat_page)
-    return flatStats
+Data = pd.DataFrame()
+for i in links:
+        flat_url = 'http://www.cian.ru/sale/flat/' + str(i) + '/'
+        #flat_url = 'http://www.cian.ru/sale/flat/150531912/' 
+        flat_page = requests.get(flat_url)
+        flat_page = flat_page.content
+        flat_page = BeautifulSoup(flat_page, 'lxml')
+        results = get_stats(flat_page)
+        results['District'] = 0
+        CIAN_flats_CAO = CIAN_flats_CAO.append(results, ignore_index=True)
 

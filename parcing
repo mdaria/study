@@ -1,1 +1,168 @@
+# -*- coding: utf-8 -*-
+"""
 
+
+import requests                  #запросы
+import re                        #Regular expression operations (регулярные выражения)
+from bs4 import BeautifulSoup    #супчик
+import pandas as pd              #работа с таблицами
+import time                      #время
+import math                      #для Пифагора
+
+def html_stripper(text):
+    return re.sub('<[^<]+?>', '', str(text))
+    
+#сначала пользовательские функции
+
+#сколько комнат?
+def getRoom(flat_page):
+    rooms = flat_page.find('div', attrs={'class':'object_descr_title'})
+    rooms = html_stripper(rooms)
+    room_number = ''
+    for i in re.split('-|\n', rooms):
+        if 'комн' in i:
+            break
+        else:
+            room_number += i
+    room_number = "".join(room_number.split())
+    return room_number
+
+#извлечь цену
+def getPrice(flat_page):
+    price = flat_page.find('div', attrs={'class':'object_descr_price'})
+    price = re.split('<div>|руб|\W', str(price))
+    price = "".join([i for i in price if i.isdigit()][-3:])
+    return int(price)
+
+
+def getTotsp(flat_page):
+    p = flat_page.find('div', attrs={'class':'clearfix'})
+    p = re.split('Общая площадь|комнат', str(p))[1]
+    p = re.split('</i>|\xa0м<sup>', str(p))[1]
+    Totsp = p.replace(',', '.')
+    return Totsp
+
+def getLivsp(flat_page):
+    p = flat_page.find('div', attrs={'class':'clearfix'})
+    p = re.split('Жилая|кухни', str(p))[1]
+    p = re.split('</i>|\xa0м<sup>', str(p))[1]
+    Livesp = p.replace(',', '.')
+    return Livesp
+    
+def getKitsp(flat_page):
+    p = flat_page.find('div', attrs={'class':'clearfix'})
+    p = re.split('кухни|сан', str(p))[1]
+    p = re.split('</i>|\xa0м<sup>', str(p))[1]
+    Kitsp = p.replace(',', '.')
+    return Kitsp
+
+    
+#расстояние от центра
+def getDist(flat_page):
+    coords = flat_page.find('div', attrs={'class':'map_info_button_extend'}).contents[1]
+    coords = re.split('&amp|center=|%2C', str(coords))
+    coords_list = []
+    for item in coords:
+        if item[0].isdigit():
+            coords_list.append(item)
+    lat = float(coords_list[0])
+    lon = float(coords_list[1])
+    #нулевой киломтер Москвы
+    Center_lat = 55.755817 
+    Center_lon = 37.617633
+    Dist = math.sqrt((lat - Center_lat)**2 + (lon- Center_lon)**2)
+    return Dist
+ 
+def getMetrDist(flat_page):
+    p = flat_page.find('div', attrs={'class':'object_descr_metro'})
+    p = re.split('comment', str(p))
+    try:
+        p = p[1]
+        Metrdist = [i for i in p.split() if i.isdigit()]
+    except: 
+        Metrdist = 'N'
+    return Metrdist
+ 
+def getWalk(flat_page):
+    p = flat_page.find('div', attrs={'class':'object_descr_metro'})
+    p = re.split('comment', str(p))
+    try:
+        p = p[1]
+        if re.search('пеш', p) is not None:
+            Walk = 1
+        else:
+            Walk = 0
+    except: 
+        Walk = 0
+    return Walk
+    
+
+def getBrick(flat_page):
+    p = flat_page.find('div', attrs={'class':'clearfix'})
+    p = re.split('дома|Высота', str(p))
+    try:
+        p = p[1]
+        if re.search('кирп|монолит|жб', str(p)) is not None:
+            Brick = 1
+        else:
+            Brick = 0
+    except:
+        Brick = 'N'
+    return Brick
+    
+def getTel(flat_page):
+    p = flat_page.find('div', attrs={'class':'clearfix'})
+    p = re.split('Телефон:|Вид из окна', str(p))[1]
+    if re.search('да|есть', str(p)) is not None:
+            Tel = 1
+    else:
+            Tel = 0
+    return Tel
+ 
+def getBal(flat_page):
+    p = flat_page.find('div', attrs={'class':'clearfix'})
+    p = re.split('Балкон|Лифт', str(p))[1]
+    if re.search('балк|лодж', str(p)) is not None:
+            Bal = 1
+    else:
+            Bal = 0
+    return Bal
+    
+def getFloor(flat_page):
+    floor = flat_page.find('div', attrs={'class':'clearfix'})
+    floor = re.split('Этаж|Тип', str(floor))
+    floor = floor[1].split()
+    floor = [i for i in floor if i.isdigit()]
+    try :
+        Floor = int(floor[0])
+    except:
+        Floor = 'N'
+    return Floor
+    
+def getNfloors(flat_page):
+    floor = flat_page.find('div', attrs={'class':'clearfix'})
+    floor = re.split('Этаж|Тип', str(floor))
+    floor = floor[1].split()
+    floor = [i for i in floor if i.isdigit()]
+    try:
+        Nfloors = int(floor[1])
+    except:
+        Nfloors = 'N'
+    return Nfloors
+    
+def getNew(flat_page):
+    p = flat_page.find('div', attrs={'class':'clearfix'})
+    p = re.split('дома|Высота', str(p))
+    try:
+        p = p[1]
+        if re.search('кирп|монолит|жб', str(p)) is not None:
+            Brick = 1
+        else:
+            Brick = 0
+    except:
+        Brick = 'N'
+    return Brick
+    
+    
+ 
+    

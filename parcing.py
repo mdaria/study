@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-
 
 import requests                  #запросы
 import re                        #Regular expression operations (регулярные выражения)

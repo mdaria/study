@@ -204,11 +204,10 @@ for page in range(1, 30):
 Data = pd.DataFrame()
 for i in links:
         flat_url = 'http://www.cian.ru/sale/flat/' + str(i) + '/'
-        #flat_url = 'http://www.cian.ru/sale/flat/150531912/' 
         flat_page = requests.get(flat_url)
         flat_page = flat_page.content
         flat_page = BeautifulSoup(flat_page, 'lxml')
         results = get_stats(flat_page)
         results['District'] = 0
-        CIAN_flats_CAO = CIAN_flats_CAO.append(results, ignore_index=True)
+        Data = Data.append(results, ignore_index=True)
 

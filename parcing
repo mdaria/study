@@ -155,14 +155,13 @@ def getNew(flat_page):
     p = re.split('дома|Высота', str(p))
     try:
         p = p[1]
-        if re.search('кирп|монолит|жб', str(p)) is not None:
-            Brick = 1
+        if re.search('втор', str(p)) is None:
+            New = 1
         else:
-            Brick = 0
+            New = 0
     except:
-        Brick = 'N'
-    return Brick
-    
+        New = 'N'
+    return New
     
  
     
